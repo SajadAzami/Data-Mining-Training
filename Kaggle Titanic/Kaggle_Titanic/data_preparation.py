@@ -2,8 +2,6 @@
 
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import scale
-from sklearn.decomposition import PCA
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
@@ -17,6 +15,6 @@ def read_data(PATH):
 
 
 train_data_set = read_data('./data_set/train.csv')
+labels = train_data_set[['PassengerId', 'Survived']]
+
 train_data_set = train_data_set.drop('Survived', 1)
-print(train_data_set.astype(str).values)
-pca = PCA(n_components=11)

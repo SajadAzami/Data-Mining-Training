@@ -2,10 +2,13 @@
 
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import scale
+from sklearn.decomposition import PCA
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
 
+# Returns data in DataFrames
 def read_data(PATH):
     data = pd.read_csv(PATH)
     print('Read data successfully')
@@ -14,4 +17,6 @@ def read_data(PATH):
 
 
 train_data_set = read_data('./data_set/train.csv')
-print(train_data_set.head())
+train_data_set = train_data_set.drop('Survived', 1)
+print(train_data_set.astype(str).values)
+pca = PCA(n_components=11)

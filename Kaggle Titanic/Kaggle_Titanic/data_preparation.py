@@ -11,10 +11,26 @@ def read_data(PATH):
     data = pd.read_csv(PATH)
     print('Read data successfully')
     print('Rows: ', len(data))
+    # print(data.describe())
     return data
 
 
 train_data_set = read_data('./data_set/train.csv')
-labels = train_data_set[['PassengerId', 'Survived']]
 
-train_data_set = train_data_set.drop('Survived', 1)
+
+# Splits labels from train data
+# Each label arg is a tuple like ('label_name', to_be_droped_flag)
+def split_labels(data, *label_names):
+    splitted = data[[label_names[0][0]]]
+    for arg in label_names:
+        if arg == label_names[0]:
+            continue
+        labels = data[[arg[0]]]
+        splitted = np.concatenate((splitted, labels), axis=1)
+    for arg in label_names:
+        if arg[1]:
+            data = data.drop(arg[0], 1)
+    return data.values, splitted
+
+
+print(split_labels(train_data_set, ('PassengerId', False), ('Survived', True)))

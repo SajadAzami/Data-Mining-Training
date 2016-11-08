@@ -11,7 +11,7 @@ def read_data(PATH):
     data = pd.read_csv(PATH)
     print('Read data successfully')
     print('Rows: ', len(data))
-    # print(data.describe())
+    print(data.info())
     return data
 
 
@@ -33,4 +33,4 @@ def split_labels(data, *label_names):
     return data.values, splitted
 
 
-print(split_labels(train_data_set, ('PassengerId', False), ('Survived', True)))
+train_data, train_labels = split_labels(train_data_set, ('PassengerId', False), ('Survived', True))

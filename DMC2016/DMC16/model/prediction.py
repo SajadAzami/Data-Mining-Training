@@ -11,6 +11,9 @@ __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 train_df = pd.read_csv('../data_set/orders_train.txt', sep=';', header=0)
 test_df = pd.read_csv('../data_set/orders_class.txt', sep=';', header=0)
 
+print(train_df.info())
+print(test_df.info())
+
 # Use this if you want to train and test on train data
 # train_df = train_df[680001:860000]
 # test_df = train_df[2000001:2200000]

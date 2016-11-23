@@ -8,12 +8,13 @@ from data_preparation import preprocessing
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
-# Load the data
-train_df = preprocessing.read_train()
-test_df = preprocessing.read_test()
+# Load the data, using 1/10 of the data as validation
+train_df, test_df = preprocessing.get_split_train_test()
 
 print(train_df.info())
 print(test_df.info())
+
+# test_df.to_csv("validation.csv", index=False)
 
 
 class DataFrameImputer(TransformerMixin):
@@ -27,7 +28,7 @@ class DataFrameImputer(TransformerMixin):
         return X.fillna(self.fill)
 
 
-feature_columns_to_use = ['PS ID', 'PROVINCE ID', 'COUNTY ID', 'Date', 'AMOUNT']
+feature_columns_to_use = ['PS ID', 'PROVINCE ID', 'COUNTY ID', 'Date', 'AMOUNT', 'HOUR']
 
 # Join the features from train and test together before imputing missing values,
 # in case their distribution is slightly different
@@ -48,6 +49,7 @@ submission = pd.DataFrame({'PS ID': test_df['PS ID'],
                            'PROVINCE ID': test_df['PROVINCE ID'],
                            'COUNTY ID': test_df['COUNTY ID'],
                            'Date': test_df['Date'],
+                           'Transaction ID': test_df['Transaction ID'],
                            'AMOUNT': test_df['AMOUNT'],
                            'Is Fraud': predictions})
 submission.to_csv("submission.csv", index=False)

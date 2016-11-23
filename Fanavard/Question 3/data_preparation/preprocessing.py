@@ -1,6 +1,7 @@
 """Question 3, 11/23/16, Sajad Azami"""
 
 import pandas as pd
+import numpy as np
 import re
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
@@ -28,6 +29,16 @@ def read_test():
     return pd.read_csv('../data_set/data_test.csv')
 
 
+def get_split_train_test():
+    data = read_train()
+    test_index = np.random.choice(data.index, int(len(data.index) / 10), replace=False)
+
+    test = data.loc[test_index]
+    train = data.loc[~data.index.isin(test_index)]
+
+    return train, test
+
+
 def get_frauds(data):
     frauds = []
     for i in data.get_values():
@@ -36,6 +47,3 @@ def get_frauds(data):
             print(i)
 
     return frauds
-
-
-print(read_train().head)

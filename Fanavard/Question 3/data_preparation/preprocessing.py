@@ -1,13 +1,26 @@
 """Question 3, 11/23/16, Sajad Azami"""
 
 import pandas as pd
+import re
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
 
 def read_train():
     data = pd.read_csv('../data_set/data_train.csv')
-    # TODO split time
+    time = data.get('TIME')
+    data.drop('TIME', axis=1)
+    hours = []
+    minutes = []
+    seconds = []
+    for i in range(0, len(time)):
+        time_str = re.split(':', time[i])
+        hours.append(time_str[0])
+        minutes.append(time_str[1])
+        seconds.append(time_str[2])
+    data['HOUR'] = hours
+    data['MINUTE'] = minutes
+    data['SECOND'] = seconds
     return data
 
 
@@ -25,4 +38,4 @@ def get_frauds(data):
     return frauds
 
 
-print(get_frauds(read_train()))
+print(read_train().head)

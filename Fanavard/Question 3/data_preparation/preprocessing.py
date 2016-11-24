@@ -7,7 +7,14 @@ import re
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
 
+# Reads train data from csv, returns pandas DF
 def read_train():
+    data = pd.read_csv('../data_set/data_train.csv')
+    return data
+
+
+# Reads train
+def read_train_split_time():
     data = pd.read_csv('../data_set/data_train.csv')
     time = data.get('TIME')
     data.drop('TIME', axis=1)
@@ -29,7 +36,7 @@ def read_test():
     return pd.read_csv('../data_set/data_test.csv')
 
 
-def get_split_train_test():
+def get_k_fold_train_test():
     data = read_train()
     test_index = np.random.choice(data.index, int(len(data.index) / 10), replace=False)
 

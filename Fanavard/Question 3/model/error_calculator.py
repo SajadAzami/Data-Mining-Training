@@ -5,48 +5,47 @@ import pandas as pd
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
 
-def get_accuracy(TP, TN, FP, FN):
-    return (TP + TN) / (TP + TN + FP + FN)
+def get_accuracy(errors):
+    return (errors[0] + errors[1]) / (errors[0] + errors[1] + errors[2] + errors[3])
 
 
-def get_sensitivity(TP, TN, FP, FN):
-    return TP / (TP + FN)
+def get_sensitivity(errors):
+    return errors[0] / (errors[0] + errors[3])
 
 
-def get_specificity(TP, TN, FP, FN):
-    return TN / (TN + FP)
+def get_specificity(errors):
+    return errors[1] / (errors[1] + errors[2])
 
 
-def get_precision(TP, TN, FP, FN):
-    return TP / (TP + FP)
+def get_precision(errors):
+    return errors[0] / (errors[0] + errors[2])
 
 
-def get_F1score(TP, TN, FP, FN):
-    return (2 * TP) / (2 * TP + FP + FN)
+def get_F1score(errors):
+    return (2 * errors[0]) / (2 * errors[0] + errors[2] + errors[3])
 
 
-submission = pd.read_csv('./submission.csv')
-validation = pd.read_csv('./validation.csv')
+# Calculates errors from submission and validation DF
+def get_errors(submission_df, validation_df):
+    # Positive Class: Fraud, Negative Class: Not Fraud
+    TP = 0  # Prediction:1, Value:1
+    TN = 0  # Prediction:0, Value:0
+    FP = 0  # Prediction:1, Value:0
+    FN = 0  # Prediction:0, Value:1
 
-# Positive Class: Fraud, Negative Class: Not Fraud
-TP = 0  # Prediction:1, Value:1
-TN = 0  # Prediction:0, Value:0
-FP = 0  # Prediction:1, Value:0
-FN = 0  # Prediction:0, Value:1
-for index_sub, item_sub in submission.iterrows():
-    print(item_sub['Is Fraud'])
-    for index_val, item_val in validation.iterrows():
-        print(item_val['Is Fraud'])
-        if item_sub['Transaction ID'] == item_val['Transaction ID']:
-            if item_sub['Is Fraud'] == 0 and item_val['Is Fraud'] == 1:
-                FN += 1
-                break
-            if item_sub['Is Fraud'] == 1 and item_val['Is Fraud'] == 0:
-                FP += 1
-                break
-            if item_sub['Is Fraud'] == 0 and item_val['Is Fraud'] == 0:
-                TN += 1
-                break
-            if item_sub['Is Fraud'] == 1 and item_val['Is Fraud'] == 1:
-                TP += 1
-                break
+    diff = submission_df['Is Fraud'].values - validation_df['Is Fraud'].values
+    multiply = submission_df['Is Fraud'].values * validation_df['Is Fraud'].values
+
+    for i in range(0, len(diff)):
+        if diff[i] == -1:
+            FN += 1
+        if diff[i] == 1:
+            FP += 1
+    T = len(diff) - FP - FN
+
+    for i in range(0, len(multiply)):
+        if multiply[i] == 1:
+            TP += 1
+    TN = T - TP
+    errors = (TP, TN, FP, FN)
+    return errors

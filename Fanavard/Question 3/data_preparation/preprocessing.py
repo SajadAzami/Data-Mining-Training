@@ -13,7 +13,7 @@ def read_train():
     return data
 
 
-# Reads train
+# Reads train and splits the TIME to HOUR, MINUTE and SECOND
 def read_train_split_time():
     data = pd.read_csv('../data_set/data_train.csv')
     time = data.get('TIME')
@@ -32,6 +32,7 @@ def read_train_split_time():
     return data
 
 
+#
 def read_test():
     return pd.read_csv('../data_set/data_test.csv')
 
@@ -46,11 +47,18 @@ def get_k_fold_train_test():
     return train, test
 
 
+# Gets a DF of train data with all frauds copied n times in train data
 def get_frauds(data):
-    frauds = []
-    for i in data.get_values():
-        if i[9] == 1:
-            frauds.append(i)
-            print(i)
+    # TODO Duplicate Fraudual data using pandas own methods
+    frame = []
+    for index, row in data.iterrows():
+        print(index)
+        if row['Is Fraud'] == 1:
+            frame.append(row.values)
+    new_data_list = np.vstack((np.array(data.values).transpose(), np.array(frame).transpose()))
+    new_data_df = pd.DataFrame(new_data_list)
+    return new_data_df
 
-    return frauds
+
+print(len(read_train()))
+get_frauds(read_train()).to_csv('oversampled_data.csv')

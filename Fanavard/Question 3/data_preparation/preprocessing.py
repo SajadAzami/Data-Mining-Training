@@ -64,4 +64,5 @@ def duplicate_fraudulent(data, n):
     return data
 
 
-duplicate_fraudulent(read_train(), 100).to_csv('../data_set/oversampled_data.csv')
+duplicate_fraudulent(read_train('../data_set/data_train.csv'),
+                     100).to_csv('../data_set/oversampled_data.csv')

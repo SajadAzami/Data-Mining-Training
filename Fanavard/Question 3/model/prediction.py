@@ -35,6 +35,9 @@ validation_df.to_csv('validation.csv', index=False)
 
 # Learn model
 print('Model Learning Started')
+print('Train Size: ', len(train_df))
+print('Test Size: ', len(test_df))
+
 gbm = xgb.XGBClassifier(max_depth=3, n_estimators=300, learning_rate=0.05).fit(train_X, train_y)
 predictions = gbm.predict(test_X)
 

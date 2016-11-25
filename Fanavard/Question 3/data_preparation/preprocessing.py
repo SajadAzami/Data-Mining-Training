@@ -8,8 +8,8 @@ __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
 
 # Reads train data from csv, returns pandas DF
-def read_train():
-    data = pd.read_csv('../data_set/data_train.csv')
+def read_train(path):
+    data = pd.read_csv(path)
     return data
 
 
@@ -37,8 +37,8 @@ def read_test():
     return pd.read_csv('../data_set/data_test.csv')
 
 
-def get_k_fold_train_test():
-    data = read_train()
+def get_k_fold_train_test(path):
+    data = read_train(path)
     test_index = np.random.choice(data.index, int(len(data.index) / 10), replace=False)
 
     test = data.loc[test_index]
@@ -47,18 +47,21 @@ def get_k_fold_train_test():
     return train, test
 
 
-# Gets a DF of train data with all frauds copied n times in train data
-def get_frauds(data):
-    # TODO Duplicate Fraudual data using pandas own methods
-    frame = []
+# Gets a DF of train data with all frauds duplicated n times in train data
+def duplicate_fraudulent(data, n):
+    print('Data length before duplication: ', len(data))
+    data = data.sort_values('Is Fraud', ascending=False)
+    df_temp = pd.DataFrame()
     for index, row in data.iterrows():
-        print(index)
         if row['Is Fraud'] == 1:
-            frame.append(row.values)
-    new_data_list = np.vstack((np.array(data.values).transpose(), np.array(frame).transpose()))
-    new_data_df = pd.DataFrame(new_data_list)
-    return new_data_df
+            df_temp = df_temp.append(row)
+        else:
+            break
+    print('Fraudulent data length: ', len(df_temp))
+    for i in range(0, n):
+        data = data.append(df_temp)
+    print('Data length after duplicating ', n, 'times', len(data))
+    return data
 
 
-print(len(read_train()))
-get_frauds(read_train()).to_csv('oversampled_data.csv')
+duplicate_fraudulent(read_train(), 100).to_csv('../data_set/oversampled_data.csv')

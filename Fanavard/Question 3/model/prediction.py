@@ -14,7 +14,7 @@ def submission_to_csv(submission_df):
 
 
 # Load the data, using 1/10 of the data as validation
-train_df, test_df = preprocessing.get_k_fold_train_test()
+train_df, test_df = preprocessing.get_k_fold_train_test('../data_set/oversampled_data.csv')
 
 print(train_df.info())
 print(test_df.info())
@@ -34,6 +34,7 @@ validation_df = test_df.loc[:, ['Is Fraud', 'Transaction ID']]
 validation_df.to_csv('validation.csv', index=False)
 
 # Learn model
+print('Model Learning Started')
 gbm = xgb.XGBClassifier(max_depth=3, n_estimators=300, learning_rate=0.05).fit(train_X, train_y)
 predictions = gbm.predict(test_X)
 

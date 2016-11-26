@@ -1,11 +1,11 @@
 """Question 3, 11/24/16, Sajad Azami"""
 
-import pandas as pd
-
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
 
 def get_accuracy(errors):
+    print('TP: ', errors[0], 'TN: ', errors[1],
+          'FP: ', errors[2], 'FN: ', errors[3])
     return (errors[0] + errors[1]) / (errors[0] + errors[1] + errors[2] + errors[3])
 
 

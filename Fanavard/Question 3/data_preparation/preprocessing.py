@@ -17,7 +17,7 @@ def read_train(path):
 def read_train_split_time():
     data = pd.read_csv('../data_set/data_train.csv')
     time = data.get('TIME')
-    data.drop('TIME', axis=1)
+    data = data.drop('TIME', axis=1)
     hours = []
     minutes = []
     seconds = []
@@ -32,9 +32,10 @@ def read_train_split_time():
     return data
 
 
-#
-def read_test():
-    return pd.read_csv('../data_set/data_test.csv')
+# Reads test data
+# default path: '../data_set/data_test.csv'
+def read_test(path):
+    return pd.read_csv(path)
 
 
 def get_k_fold_train_test(path):
@@ -62,7 +63,3 @@ def duplicate_fraudulent(data, n):
         data = data.append(df_temp)
     print('Data length after duplicating ', n, 'times', len(data))
     return data
-
-
-duplicate_fraudulent(read_train('../data_set/data_train.csv'),
-                     100).to_csv('../data_set/oversampled_data.csv')

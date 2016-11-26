@@ -40,11 +40,8 @@ def read_test(path):
 
 def get_k_fold_train_test(path):
     data = read_train(path)
-    test_index = np.random.choice(data.index, int(len(data.index) / 10), replace=False)
-
-    test = data.loc[test_index]
-    train = data.loc[~data.index.isin(test_index)]
-
+    test = data.sample(frac=0.1)
+    train = data.sample(frac=1)
     return train, test
 
 

@@ -102,4 +102,3 @@ def train_XGBClassifier():
 train_df, test_df = preprocessing.get_k_fold_train_test('../data_set/oversampled_data.csv')
 
 predictions_XGBClassifier = train_XGBClassifier()
-predictions_XGBTrain = train_XGBTrain()

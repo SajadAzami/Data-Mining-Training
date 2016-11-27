@@ -24,7 +24,7 @@ def round_predictions(preds):
 
 
 def train_XGBTrain():
-    train_df, test_df = preprocessing.get_k_fold_train_test('../data_set/oversampled_data.csv')
+    train_df, test_df = preprocessing.get_k_fold_train_test('../data_set/data_train.csv')
 
     xg_train = xgb.DMatrix(train_df.values, train_df['Is Fraud'].values)
     xg_test = xgb.DMatrix(test_df.values, test_df['Is Fraud'].values)
@@ -96,6 +96,7 @@ def train_XGBClassifier():
 
     errors = error_calculator.get_errors(submission, validation_df)
     print('Accuracy:', error_calculator.get_accuracy(errors))
+    print('Precision: ', error_calculator.get_precision(errors))
     return preds
 
 

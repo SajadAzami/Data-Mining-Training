@@ -4,32 +4,30 @@ from preprocessing import data_preparation as dp
 import pandas as pd
 import numpy as np
 import seaborn as sns
-from matplotlib import gridspec
+from visualization import scatter
 import matplotlib.pyplot as plt
 
 sns.set_style('white')
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
-
-# Scatter plot each feature vs label, n*m subplot
-def scatter_plot_feature_vs_label(data, label, n, m):
-    fig = plt.figure()
-    gs = gridspec.GridSpec(n, m)
-    counter = 0
-    for i in range(0, n):
-        for j in range(0, m):
-            ax_temp = fig.add_subplot(gs[i, j])
-            ax_temp.scatter(data[data.columns.values[counter]].values, label)
-            ax_temp.title.set_text(('Feature ' + str(data.columns.values[counter])))
-            counter += 1
-            if counter >= len(data.columns.values):
-                break
-    plt.show()
-
-
+# Loading dataset
 train_data_set = dp.read_data('./data_set/train.csv')
-train_label = train_data_set['Survived']
-train_data = train_data_set.drop('Survived', axis=1)
-train_data['Age'] = train_data['Age'].fillna(train_data['Age'].median())
-scatter_plot_feature_vs_label(train_data[['Age', 'PassengerId', 'Pclass', 'Fare', 'SibSp', 'Parch']], train_label, 3, 2)
-print(train_data.info())
+test_data_set = dp.read_data('./data_set/test.csv')
+
+# Filling missing values
+train_data_set['Age'] = train_data_set['Age'].fillna(train_data_set['Age'].median())
+test_data_set['Age'] = test_data_set['Age'].fillna(test_data_set['Age'].median())
+train_data_set["Fare"] = train_data_set["Fare"].fillna(train_data_set["Fare"].median())
+test_data_set["Fare"] = test_data_set["Fare"].fillna(test_data_set["Fare"].median())
+# convert from float to int
+test_data_set['Fare'] = test_data_set['Fare'].astype(int)
+test_data_set['Fare'] = test_data_set['Fare'].astype(int)
+
+
+# Scatter plot numerical data
+scatter.bar_plot_feature_vs_label(train_data_set, 'Survived',
+                                  ['Pclass', 'SibSp', 'Parch'], 2, 2)
+
+# drop unnecessary columns, these columns won't be useful in analysis and prediction
+train_data_set = train_data_set.drop(['PassengerId', 'Name', 'Ticket'], axis=1)
+test_data_set = test_data_set.drop(['Name', 'Ticket'], axis=1)

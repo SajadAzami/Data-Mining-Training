@@ -9,12 +9,10 @@ sns.set_style('whitegrid')
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 
 
-# Returns data in DataFrames
-def read_data(PATH):
-    data = pd.read_csv(PATH)
+# Reads train data from csv, returns pandas DF
+def read_data(path):
+    data = pd.read_csv(path, index_col=False)
     print('Read data successfully')
-    print('Rows: ', len(data))
-    print(data.info())
     return data
 
 
@@ -26,7 +24,7 @@ def missing_handler(dataframe, *clm_value):
 
 
 # Splits labels from train data
-# Each label arg is a tuple like ('label_name', to_be_droped_flag)
+# Each label arg is a tuple like ('label_name', to_be_dropped_flag)
 def split_labels(data, *label_names):
     split = data[[label_names[0][0]]]
     for arg in label_names:
@@ -38,9 +36,3 @@ def split_labels(data, *label_names):
         if arg[1]:
             data = data.drop(arg[0], 1)
     return data.values, split
-
-
-train_data_set = read_data('./data_set/train.csv')
-missing_handler(train_data_set, ('Embarked', 'S'))
-sns.factorplot('Embarked', 'Survived', data=train_data_set, size=4, aspect=3)
-train_data, train_labels = split_labels(train_data_set, ('PassengerId', False), ('Survived', True))

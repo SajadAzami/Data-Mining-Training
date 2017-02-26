@@ -7,7 +7,6 @@ from sklearn.cross_validation import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.grid_search import GridSearchCV
 from sklearn.linear_model import LogisticRegression
-
 from preprocessing import data_preparation as dp
 from visualization import scatter
 

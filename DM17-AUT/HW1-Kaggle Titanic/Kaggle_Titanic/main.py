@@ -78,6 +78,7 @@ print(test_X.info())
 # Logistic Regression model
 log_reg = LogisticRegression()
 log_reg.fit(train_X, train_Y)
+print('Logistic Regression Train MSE: ' + str(1 / 2 * len(test_Y) * (log_reg.predict(test_X) - test_Y) ** 2))
 Y_pred = log_reg.predict(test_data_set)
 submission = pd.DataFrame(pd.concat([test_data_set_ids, pd.DataFrame(Y_pred)], axis=1))
 submission.to_csv(path_or_buf='logistic_regression_result.csv', index=False)

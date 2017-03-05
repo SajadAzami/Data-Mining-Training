@@ -11,6 +11,7 @@ import pandas as pd
 import math
 from sklearn.cross_validation import cross_val_score
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import GradientBoostingRegressor
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 sns.set_style("white")
@@ -103,10 +104,10 @@ print('\nLasso Model:')
 alpha = 0.1
 lasso_model = Lasso(alpha=alpha)
 lasso_line = lasso_model.fit(train_X, train_Y)
-title = 'Alpha = ' + str(alpha)
+title = 'Lasso with Alpha = ' + str(alpha)
 lass_predictions = lasso_line.predict(test_X)
 RSS = sum((test_Y - lass_predictions) ** 2)
-print('Lasso with Lambda 0.0001\nTest RSS: ' + str(RSS))
+print('Lasso with Lambda 0.1\nTest RSS: ' + str(RSS))
 cv_risk = math.sqrt(sum(abs(cross_val_score(lasso_model, train_X, train_Y, scoring='mean_squared_error', cv=10))) / 10)
 print('10-fold CV with RMSE: ' + str(cv_risk))
 plt.plot(np.linspace(0, 40, 40), lass_predictions, 'r', label="predictions")
@@ -134,6 +135,24 @@ for i in range(0, 2):
         ax_temp.title.set_text(title)
         counter += 1
 plt.show()
+
+# 3. Learning Gradient Boosting from Data
+print('\nGradient Boosting Model:')
+gradient_boosting_model = GradientBoostingRegressor()
+gradient_boosting_line = gradient_boosting_model.fit(train_X, train_Y)
+gb_predictions = gradient_boosting_line.predict(test_X)
+title = 'Gradient Boosting'
+RSS = sum((test_Y - gb_predictions) ** 2)
+print('Gradient Boosting\nTest RSS: ' + str(RSS))
+cv_risk = math.sqrt(sum(abs(cross_val_score(gradient_boosting_model,
+                                            train_X, train_Y, scoring='mean_squared_error', cv=10))) / 10)
+print('10-fold CV with RMSE: ' + str(cv_risk))
+plt.plot(np.linspace(0, 40, 40), gb_predictions, 'r', label="predictions")
+plt.plot(np.linspace(0, 40, 40), test_Y, label="real values")
+plt.legend(loc='lower right')
+plt.title(title)
+plt.show()
+
 #
 # # Predicting the final submission file with the best model
 # # Filling missing values with Gaussian Noise, N(mean_of_row, 1)

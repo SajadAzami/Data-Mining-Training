@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import Lasso
 import pandas as pd
 import math
+from sklearn.cross_validation import cross_val_score
+from sklearn.linear_model import LinearRegression
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 sns.set_style("white")
@@ -78,15 +80,38 @@ for i in range(0, 2):
         ax_temp.title.set_text(('Feature ' + str(counter)))
 plt.show()
 
-# Using Lasso Regression on Data
+# 1. Learning Linear Regression from Data
+print('\nLinear Regression Model:')
+linear_regression_model = LinearRegression()
+linear_regression_line = linear_regression_model.fit(train_X, train_Y)
+lr_predictions = linear_regression_line.predict(test_X)
+title = 'Linear Regression'
+RSS = sum((test_Y - lr_predictions) ** 2)
+print('Linear Regression\nTest RSS: ' + str(RSS))
+cv_risk = math.sqrt(sum(abs(cross_val_score(linear_regression_model,
+                                            train_X, train_Y, scoring='mean_squared_error', cv=10))) / 10)
+print('10-fold CV with RMSE: ' + str(cv_risk))
+plt.plot(np.linspace(0, 40, 40), lr_predictions, 'r', label="predictions")
+plt.plot(np.linspace(0, 40, 40), test_Y, label="real values")
+plt.legend(loc='lower right')
+plt.title(title)
+plt.show()
+
+# 2. Using Lasso Regression on Data
 # Optimization Objective: (1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1
-alpha = 0.000001
+print('\nLasso Model:')
+alpha = 0.1
 lasso_model = Lasso(alpha=alpha)
 lasso_line = lasso_model.fit(train_X, train_Y)
-title = 'Alpha = ' + str(alpha) + '\nRed: Lasso Prediction, Blue: Real Values'
-plt.plot(np.linspace(0, 40, 40), lasso_line.predict(test_X), 'r', label="predictions")
+title = 'Alpha = ' + str(alpha)
+lass_predictions = lasso_line.predict(test_X)
+RSS = sum((test_Y - lass_predictions) ** 2)
+print('Lasso with Lambda 0.0001\nTest RSS: ' + str(RSS))
+cv_risk = math.sqrt(sum(abs(cross_val_score(lasso_model, train_X, train_Y, scoring='mean_squared_error', cv=10))) / 10)
+print('10-fold CV with RMSE: ' + str(cv_risk))
+plt.plot(np.linspace(0, 40, 40), lass_predictions, 'r', label="predictions")
 plt.plot(np.linspace(0, 40, 40), test_Y, label="real values")
-plt.legend(loc='upper left')
+plt.legend(loc='lower right')
 plt.title(title)
 plt.show()
 
@@ -101,13 +126,11 @@ for i in range(0, 2):
         lasso_line = lasso_model.fit(train_X, train_Y)
         predictions = lasso_line.predict(test_X)
         if counter == 0:
-            RSS = sum((test_Y - predictions) ** 2)
-            print('RSS: ' + str(RSS))
-        title = 'Alpha = ' + str(alphas[counter])
+            title = 'Alpha = ' + str(alphas[counter])
         ax_temp = fig.add_subplot(gs[i, j])
         ax_temp.plot(np.linspace(0, 40, 40), predictions, 'r', label="predictions")
         ax_temp.plot(np.linspace(0, 40, 40), test_Y, label="real values")
-        ax_temp.legend(loc='upper left')
+        ax_temp.legend(loc='lower right')
         ax_temp.title.set_text(title)
         counter += 1
 plt.show()

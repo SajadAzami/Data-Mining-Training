@@ -1,4 +1,4 @@
-"""Linear Regression, 1/30/17, Sajad Azami"""
+"""Grade Prediction, 2/30/17, Sajad Azami"""
 
 import data_preparation
 import numpy as np

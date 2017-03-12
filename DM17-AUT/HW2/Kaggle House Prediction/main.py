@@ -14,6 +14,7 @@ import math
 from sklearn.cross_validation import cross_val_score
 from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
+from sklearn import preprocessing
 from sklearn.ensemble import GradientBoostingRegressor
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
@@ -30,10 +31,24 @@ def cat_imputation(column, value, data):
     data.loc[data[column].isnull(), column] = value
 
 
+def encode_field(dataframe_train, dataframe_test, col_name):
+    encoder = preprocessing.LabelEncoder()
+
+    for i in col_name:
+        dataframe_train = dataframe_train.fillna(dataframe_train[i].value_counts().index[0])
+        dataframe_test = dataframe_test.fillna(dataframe_test[i].value_counts().index[0])
+
+        encoder.fit(dataframe_train[i].values)
+        dataframe_train[i] = encoder.transform(dataframe_train[i].values)
+        dataframe_test[i] = encoder.transform(dataframe_test[i].values)
+    return dataframe_train, dataframe_test
+
+
 train_full_X, train_full_Y = data_preparation.read_data('./data_set/train.csv', 'SalePrice')
 test_full_X = pd.read_csv('./data_set/test.csv')
 print('Data set Loaded!\nTrain Shape: ' + str(train_full_X.shape))
 print('Final Test Shape: ' + str(test_full_X.shape))
+
 
 # print('\nMissing Status:')
 # print(data_preparation.show_missing(train_full_X))
@@ -42,52 +57,29 @@ print('Final Test Shape: ' + str(test_full_X.shape))
 # Dropping features with huge number of NAs: [PoolQC, Fence, MiscFeature]
 # train_full_X = train_full_X.drop(['PoolQC', 'Fence', 'MiscFeature'], axis=1)
 # test_full_X = test_full_X.drop(['PoolQC', 'Fence', 'MiscFeature'], axis=1)
-cat_imputation('Alley', 'None', train_full_X)
-cat_imputation('Alley', 'None', test_full_X)
-cat_imputation('MasVnrType', 'None', train_full_X)
-cat_imputation('MasVnrType', 'None', test_full_X)
-cat_imputation('MasVnrArea', 0.0, train_full_X)
-cat_imputation('MasVnrArea', 0.0, test_full_X)
-basement_cols = ['BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2', 'BsmtFinSF1', 'BsmtFinSF2']
-for cols in basement_cols:
-    if 'FinSF' not in cols:
-        cat_imputation(cols, 'None', train_full_X)
-        cat_imputation(cols, 'None', test_full_X)
+def fill_na(dataframe):
+    for column in dataframe.columns:
+        if dataframe[column].count() <= len(dataframe[column]) * 0.7:
+            del dataframe[column]
+            continue
+        if type(dataframe[column]) is np.int64:
+            dataframe[column].fillna(dataframe[column].median(), inplace=True)
+        elif type(dataframe[column]) is np.float64:
+            dataframe[column].fillna(dataframe[column].median(), inplace=True)
+        else:
+            dataframe[column].fillna(dataframe[column].value_counts().idxmax(), inplace=True)
 
-# Impute most frequent value
-cat_imputation('Electrical', 'SBrkr', train_full_X)
-cat_imputation('Electrical', 'SBrkr', test_full_X)
-cat_imputation('FireplaceQu', 'None', train_full_X)
-cat_imputation('FireplaceQu', 'None', test_full_X)
 
-garage_cols = ['GarageType', 'GarageQual', 'GarageCond', 'GarageYrBlt', 'GarageFinish', 'GarageCars', 'GarageArea']
-# Garage Imputation
-for cols in garage_cols:
-    if train_full_X[cols].dtype == np.object:
-        cat_imputation(cols, 'None', train_full_X)
-    else:
-        cat_imputation(cols, 0, train_full_X)
-    if test_full_X[cols].dtype == np.object:
-        cat_imputation(cols, 'None', test_full_X)
-    else:
-        cat_imputation(cols, 0, test_full_X)
-
-cat_imputation('PoolQC', 'None', train_full_X)
-cat_imputation('PoolQC', 'None', test_full_X)
-cat_imputation('Fence', 'None', train_full_X)
-cat_imputation('Fence', 'None', test_full_X)
-cat_imputation('MiscFeature', 'None', train_full_X)
-cat_imputation('MiscFeature', 'None', test_full_X)
-
-train_full_X = train_full_X.fillna(train_full_X.mean())
-test_full_X = test_full_X.fillna(test_full_X.mean())
+fill_na(train_full_X)
+fill_na(test_full_X)
 
 # Converting categorical to numeric
-# TODO Merge git(because of report), push till now
-# TODO Fix this
-cols_to_transform = train_full_X.columns.difference(train_full_X._get_numeric_data().columns)
-train_full_X = pd.get_dummies(train_full_X, columns=cols_to_transform)
-test_full_X = pd.get_dummies(test_full_X, columns=cols_to_transform)
+categorical_columns = train_full_X.columns.difference(train_full_X._get_numeric_data().columns)
+train_full_X, test_full_X = encode_field(train_full_X, test_full_X, categorical_columns)
+
+# cols_to_transform = train_full_X.columns.difference(train_full_X._get_numeric_data().columns)
+# train_full_X = pd.get_dummies(train_full_X, columns=cols_to_transform)
+# test_full_X = pd.get_dummies(test_full_X, columns=cols_to_transform)
 
 # Split train and test data
 train_X = train_full_X[:1060]
@@ -166,5 +158,6 @@ plt.show()
 
 # Predicting the final submission file with the best model, Random Forrest
 test_prediction = grid_search.predict(test_full_X).astype(int)
-submission = pd.DataFrame([test_prediction['Id'], test_prediction], columns=['Id', 'SalePrice'])
+print(test_prediction)
+submission = pd.DataFrame({'Id': test_full_X['Id'], 'SalePrice': test_prediction})
 submission.to_csv('predictions.csv', index=None)

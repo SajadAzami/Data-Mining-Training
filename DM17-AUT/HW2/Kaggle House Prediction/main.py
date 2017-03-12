@@ -1,21 +1,22 @@
 """Kaggle House Prediction, 3/10/17, Sajad Azami"""
 
-import data_preparation
-import numpy as np
-import seaborn as sns
-from matplotlib import gridspec
-import matplotlib.pyplot as plt
-from sklearn.linear_model import Lasso
-from sklearn.cross_validation import StratifiedKFold
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.grid_search import GridSearchCV
-import pandas as pd
 import math
-from sklearn.cross_validation import cross_val_score
-from sklearn.linear_model import LinearRegression
-from sklearn.svm import SVR
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 from sklearn import preprocessing
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.cross_validation import cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import SelectFromModel
+from sklearn.grid_search import GridSearchCV
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import LassoCV
+from sklearn.linear_model import LinearRegression
+
+import data_preparation
 
 __author__ = 'sajjadaazami@gmail.com (Sajad Azami)'
 sns.set_style("white")
@@ -46,6 +47,8 @@ def encode_field(dataframe_train, dataframe_test, col_name):
 
 train_full_X, train_full_Y = data_preparation.read_data('./data_set/train.csv', 'SalePrice')
 test_full_X = pd.read_csv('./data_set/test.csv')
+submission_ids = test_full_X['Id']
+
 print('Data set Loaded!\nTrain Shape: ' + str(train_full_X.shape))
 print('Final Test Shape: ' + str(test_full_X.shape))
 
@@ -77,6 +80,18 @@ fill_na(test_full_X)
 categorical_columns = train_full_X.columns.difference(train_full_X._get_numeric_data().columns)
 train_full_X, test_full_X = encode_field(train_full_X, test_full_X, categorical_columns)
 
+# Select useful features
+# This method didn't work well, so it was commented
+# lsvc = LassoCV(n_alphas=1).fit(train_X, train_Y)
+# model = SelectFromModel(lsvc, prefit=True)
+# train_X = model.transform(train_X)
+# print('Shape after transform:' + str(train_X.shape))
+# test_X = model.transform(test_X)
+# test_full_X = model.transform(test_full_X)
+
+train_full_X = train_full_X.drop('Id', axis=1)
+test_full_X = test_full_X.drop('Id', axis=1)
+
 # cols_to_transform = train_full_X.columns.difference(train_full_X._get_numeric_data().columns)
 # train_full_X = pd.get_dummies(train_full_X, columns=cols_to_transform)
 # test_full_X = pd.get_dummies(test_full_X, columns=cols_to_transform)
@@ -91,7 +106,6 @@ print('Train data size:', train_X.shape)
 print('Test data size:', test_X.shape)
 print(test_full_X.shape)
 print(train_X.shape)
-# TODO Feature selection
 
 # 1. Learning Linear Regression from Data
 print('\nLinear Regression Model:')
@@ -139,6 +153,7 @@ plt.show()
 
 # 3. Using Lasso Regression on Data
 # Optimization Objective: (1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1
+
 print('\nLasso Model:')
 alpha = 0.1
 lasso_model = Lasso(alpha=alpha)
@@ -157,7 +172,8 @@ plt.title(title)
 plt.show()
 
 # Predicting the final submission file with the best model, Random Forrest
-test_prediction = grid_search.predict(test_full_X).astype(int)
+lasso_line = lasso_model.fit(train_full_X, train_full_Y)
+test_prediction = lasso_line.predict(test_full_X).astype(int)
 print(test_prediction)
-submission = pd.DataFrame({'Id': test_full_X['Id'], 'SalePrice': test_prediction})
-submission.to_csv('predictions.csv', index=None)
+submission = pd.DataFrame({'Id': submission_ids, 'SalePrice': test_prediction})
+submission.to_csv('lasso_predictions.csv', index=None)
